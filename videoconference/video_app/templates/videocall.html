@@ -1,0 +1,75 @@
+<html>
+<head>
+    <style>
+   body {
+            background-color: black; /* Set the background color of the body to black */
+            color: white; /* Set the text color to white for better visibility */
+        }  
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+<script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+<script>
+window.onload = function () {
+    function getUrlParams(url) {
+        let urlStr = url.split('?')[1];
+        const urlSearchParams = new URLSearchParams(urlStr);
+        const result = Object.fromEntries(urlSearchParams.entries());
+        return result;
+    }
+
+
+        // Generate a Token by calling a method.
+        // @param 1: appID
+        // @param 2: serverSecret
+        // @param 3: Room ID
+        // @param 4: User ID
+        // @param 5: Username
+    const roomID ="{{room_id}}";
+    const userID = "{{id}}";
+    const userName = "{{ name }}";
+    const appID = 492153351;
+    const serverSecret = "22d8b9f1e644e863def6105de6dc8420";
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+
+    
+        const zp = ZegoUIKitPrebuilt.create(kitToken);
+        
+        zp.joinRoom({
+            container: document.querySelector("#root"),
+            showPreJoinView: false,
+            sharedLinks: [{
+                name: 'Personal link',
+                url: window.location.protocol + '//' + window.location.host  + window.location.pathname + '?roomID=' + roomID,
+            }],
+            scenario: {
+                mode: ZegoUIKitPrebuilt.VideoConference,
+            },
+                
+           	turnOnMicrophoneWhenJoining: false,
+           	turnOnCameraWhenJoining: false,
+           	showMyCameraToggleButton: true,
+           	showMyMicrophoneToggleButton: true,
+           	showAudioVideoSettingsButton: true,
+           	showScreenSharingButton: true,
+           	showTextChat: true,
+           	showUserList: true,
+           	maxUsers: 50,
+           	layout: "Sidebar",
+           	showLayoutButton: true,
+            onJoinRoom: function () {
+                console.log('User'+userID+' joined');
+            },
+            onLeaveRoom: function () {
+                console.log('User'+userID+' left');
+            }
+            });
+}
+
+window.addEventListener('beforeunload', customBeforeUnload);
+
+</script>
+
+</html> 
