@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Report</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+        .main-content {
+            padding: 50px;
+        }
+        .charts-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 45%;
+        }
+        .chart-card h3 {
+            margin-top: 0;
+        }
+        .table-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            animation: progress-animation 2s ease-out;
+        }
+        .progress-bar {
+            width: 0;
+            height: 7px;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            animation: progress-fill 2s ease-out;
+        }
+      
+    </style>
+</head>
+<body>
+    <div style="margin-top: 50px;" class="charts-container">
+        <!-- Bar Graph -->
+        <div class="chart-card" style="height: 600px;">
+            <h3 style="text-align: center;">Bar Graph</h3>
+            <canvas id="barGraph" class="chart" style="height: 200px;"></canvas>
+        </div>
+        <!-- Line Graph -->
+        <div class="chart-card">
+            <h3 style="text-align: center;">Line Graph</h3>
+            <canvas id="lineGraph" class="chart" style="height: 800px;"></canvas>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="table-container">
+            <h2 style="text-align: center;">Meeting Report</h2>
+            <p style="text-align: center;">Total duration of meeting {{tot_time}}</p><br>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Time Interval</th>
+                            <th>Percentage of time attended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                        <tr>
+                            <td>{{ entry.user_info }}</td>
+                            <td>{{ entry.interval }}</td>
+                            <td>
+                              <p>{{entry.percentage}}%</p>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: {{ entry.percentage }}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <button onclick="downloadPDF()">Download PDF</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
+        var user_info_list = [{% for entry in entries %}'{{ entry.user_info }}',{% endfor %}];
+        var percentage_list = [{% for entry in entries %}{{ entry.percentage }},{% endfor %}];
+        var stripped_user_info_list = [];
+
+for (var i = 0; i < user_info_list.length; i++) {
+    var stripped_info = user_info_list[i].slice(0, -13); // Remove last 10 characters
+    stripped_user_info_list.push(stripped_info);
+}
+        // Bar Graph
+        var ctx1 = document.getElementById('barGraph').getContext('2d');
+        var barGraph = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: stripped_user_info_list,
+                datasets: [{
+                    label: 'Percentage',
+                    data: percentage_list,
+                    backgroundColor: '#41B06E',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Percentage (%)'
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }],
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                        }
+                    }]
+                },
+                legend: {
+                    display: false
+                }
+            }
+        });
+
+        // Line Graph
+        var ctx2 = document.getElementById('lineGraph').getContext('2d');
+        var lineGraph = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: stripped_user_info_list,
+                datasets: [{
+                    label: 'Percentage',
+                    data: percentage_list,
+                    borderColor: '#FF5722',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Percentage (%)'
+                        },
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }],
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                        }
+                    }]
+                }
+            }
+        });
+        function downloadPDF() {
+        const filename = 'meeting_report.pdf';
+
+        // Convert HTML to PDF
+        html2pdf().from(document.body).save(filename);
+    }
+    </script>
+</body>
+</html>

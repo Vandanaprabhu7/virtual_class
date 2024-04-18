@@ -59,12 +59,15 @@ window.onload = function () {
            	maxUsers: 50,
            	layout: "Sidebar",
            	showLayoutButton: true,
-            onJoinRoom: function () {
-                console.log('User'+userID+' joined');
-            },
+            // onJoinRoom: function () {
+            //     console.log('User'+userID+' joined');
+            // },
             onLeaveRoom: function () {
-                console.log('User'+userID+' left');
-            }
+                var userID ="{{id}}"; 
+                var roomID="{{room_id}}"
+                var url = "http://localhost:8000/join/leave_room/?userID=" + userID + "&roomID=" + roomID;
+                window.location.href = url;
+}
             });
 }
 
@@ -72,4 +75,4 @@ window.addEventListener('beforeunload', customBeforeUnload);
 
 </script>
 
-</html> 
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Join Room</title>
+  <style>
+    /* Import Google font - Poppins */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+    /* Reset CSS */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      background-color: #009579;
+    }
+
+    .container {
+      max-width: 430px;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 7px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .form {
+      padding: 2rem;
+    }
+
+    header {
+      font-size: 2rem;
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    input[type="text"],
+    input[type="submit"],
+    button {
+      width: 100%;
+      height: 40px;
+      padding: 0 15px;
+      font-size: 17px;
+      margin-bottom: 1.3rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    input[type="submit"] {
+      color: #fff;
+      background: #009579;
+      font-weight: 500;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: 0.4s;
+    }
+
+    input[type="submit"]:hover {
+      background: #006653;
+    }
+
+    .messages {
+      margin-top: 1rem;
+    }
+
+    .messages p {
+      margin-bottom: 0.5rem;
+    }
+
+    .error-message {
+      color: red;
+    }
+
+    .success-message {
+      color: green;
+    }
+
+    .input-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-container p {
+      margin-bottom: 0.5rem;
+    }
+
+    button {
+      height: 40px;
+      background-color: #009579;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #006653;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form">
+      <header style="margin-bottom: 10px;">View Report</header>
+      <form action="{% url 'view_report' %}" method="POST" class="join-room-form">
+        {% csrf_token %}
+        <div class="input-container"><br>
+          <p style="text-align: center;">Enter your meeting ID: </p>
+          <input type="text" placeholder="Enter room ID (e.g., XXXX-XXXX-XXXX)" name="roomID" id="roomIDInput" maxlength="14" minlength="14" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" required>
+          <input type="submit" value="submit" style="margin-bottom: 0%;">
+        </div>
+        <div class="messages">
+          {% if messages %}
+            {% for message in messages %}
+              <p class="{% if 'error' in message.tags %}error-message{% else %}success-message{% endif %}"><b>{{ message }}</b></p>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

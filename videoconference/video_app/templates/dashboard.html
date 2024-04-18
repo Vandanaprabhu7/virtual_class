@@ -19,6 +19,8 @@
       {% else %}
         <!-- <a href="{% url 'meeting' %}" class="button">New Meeting</a> -->
         <a href="{% url 'join_room' %}" class="button">Join Meeting / Create meeting</a>
+        <a href="{% url 'view_report' %}" class="button">View meeting report</a>
+        <a href="{% url 'create_sec' %}" class="button">Create new section</a>
         <a href="{% url 'logout' %}" class="button">Logout</a>
         {% endif %}
       </div>
