@@ -32,4 +32,5 @@ class RegisterForm(UserCreationForm):
             user.save()
         
         return user
-    
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

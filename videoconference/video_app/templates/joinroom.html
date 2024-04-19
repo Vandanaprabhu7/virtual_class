@@ -107,6 +107,28 @@
     button:hover {
       background-color: #006653;
     }
+    .input-container select {
+  width: 100%;
+  height: 40px;
+  padding: 0 15px;
+  font-size: 17px;
+  margin-bottom: 1.3rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+}
+
+/* Apply hover effect */
+.input-container select:hover {
+  border-color: #aaa;
+}
+
+/* Apply focus effect */
+.input-container select:focus {
+  border-color: #009579;
+  box-shadow: 0 0 0 2px rgba(0, 149, 121, 0.2);
+}
+
   </style>
 </head>
 <body>
@@ -120,15 +142,22 @@
           <p>Enter your meeting ID or generate a new one:</p>
           <input type="text" placeholder="Enter room ID (e.g., XXXX-XXXX-XXXX)" name="roomID" id="roomIDInput" maxlength="14" minlength="14" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" required>
           <button type="button" onclick="generateRandomRoomID()" style="margin-bottom: 0%;">Generate Random ID</button>
+          <br>
+          <br>
+          <select id="studentDropdown" name="selectedSec">
+            <option value="None" selected>--Select--</option>
+            {% for secitem in sections %}
+              <option value="{{ secitem }}">{{secitem}}</option>
+            {% endfor %}
+          </select>
+          <input type="submit" value="Join" style="margin-bottom: 0%;">
         </div>
         {% else %}
         <div class="input-container">
           <input type="text" placeholder="Enter room ID (e.g., XXXX-XXXX-XXXX)" name="roomID" maxlength="14" minlength="14" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" required>
-        </div>
-        {% endif %}
-        <div class="input-container">
           <input type="submit" value="Join" style="margin-bottom: 0%;">
         </div>
+        {% endif %}
         <div class="messages">
           {% if messages %}
             {% for message in messages %}

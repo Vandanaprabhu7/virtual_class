@@ -10,6 +10,9 @@
 <body>
     <div id="root"></div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://smtpjs.com/v3/smtp.js"></script>
 <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
 <script>
 window.onload = function () {
@@ -30,6 +33,18 @@ window.onload = function () {
     const roomID ="{{room_id}}";
     const userID = "{{id}}";
     const userName = "{{ name }}";
+    const emaillist="{{emaillist}}";
+    const emailArray = emaillist.split(',');
+    function cleanArray(arr) {
+    return arr.map(item => {
+        // Remove square brackets and HTML entities using regular expressions
+        return item.replace(/\[|\]|&#x27;/g, '').trim();
+    });
+}
+const cleanedEmail = cleanArray(emailArray);
+cleanedEmail.forEach(email => {
+    sendmail(email);
+});
     const appID = 492153351;
     const serverSecret = "22d8b9f1e644e863def6105de6dc8420";
     const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
@@ -71,7 +86,56 @@ window.onload = function () {
             });
 }
 
-window.addEventListener('beforeunload', customBeforeUnload);
+function sendmail(email) {
+            Email.send({
+                Host: "smtp.elasticemail.com",
+                Username: "vandanaprabhu702@gmail.com",
+                Password: "ECE65D1578529A982F0CCF537C56FD007684",
+                To: email+"@nmamit.in",
+                From: 'vandanaprabhu702@gmail.com',
+                Subject: "Invitaion for attending class",
+                Body: `
+    <html>
+        <head>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                    padding: 20px;
+                }
+                .container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background-color: #fff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    padding: 20px;
+                }
+                .message {
+                    color: #333;
+                }
+                .button {
+                    display: inline-block;
+                    padding: 10px 20px;
+                    background-color: #007bff;
+                    color: #fff;
+                    text-decoration: none;
+                    border-radius: 4px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Meeting Invitation</h2>
+                <p class="message">Dear ${email},</p>
+                <p class="message">{{ presenter }} has started the meeting. Please use the following room id to join:</p>
+                <p class="message"><strong>{{ room_id }}</strong></p>
+                <a href="localhost:8000" class="button">Join Meeting</a>
+            </div>
+        </body>
+    </html>
+`
+            })};
 
 </script>
 

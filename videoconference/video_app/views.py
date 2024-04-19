@@ -60,30 +60,28 @@ def logout_view(request):
 
 @login_required
 def join_room(request):
-    if request.method == 'POST':
-        roomID = request.POST['roomID']
-        return redirect("/meeting?roomID=" + roomID)
-    return render(request, 'joinroom.html')
-
-
-@login_required
-def join_room(request):
         is_staff = request.user.is_staff
-    
+        students = sectionDetails.objects.filter(secname=request.POST.get('selectedSec'))
+        newlist = [student.students for student in students]
+        emaillist = []
+        for item in newlist:
+            values = item.split(',')
+            emaillist.extend(values)
+        secdet_objects = sectionDetails.objects.filter(user_id=request.user.id)
+        sections=[]
+        for i in secdet_objects:
+            sections.append(i.secname)            
         if request.method == 'POST':
             room_id = request.POST.get('roomID')
-        
+            secname=request.POST.get('selectedSec')
             if request.user.is_staff:
                 if not PresentMeeting.objects.filter(room_id=room_id).exists():
-                    secdet=sectionDetails.objects.get(user_id=request.user.id)
-                    studetns=secdet.getusn(request.user.id)
-                    print(studetns)
-                    present_meeting = PresentMeeting.objects.create(room_id=room_id, user=request.user)
+                    present_meeting = PresentMeeting.objects.create(room_id=room_id, user=request.user,secname=secname)
                     present_meeting.onprogress = True
                     present_meeting.add_participant(request.user.id)
                     present_meeting.save()
                     messages.success(request, "Meeting created successfully.")#here
-                    return render(request, 'videocall.html', {'name': request.user.first_name + " [" + request.user.email.split('@')[0] + "]", 'room_id': room_id, 'is_staff': is_staff,'id':request.user.id})
+                    return render(request, 'videocall.html', {'name': request.user.first_name + " [" + request.user.email.split('@')[0] + "]", 'room_id': room_id, 'is_staff': is_staff,'id':request.user.id,"emaillist":emaillist,'presenter':request.user.first_name})
                 else:
                     present_meeting = PresentMeeting.objects.get(room_id=room_id)
                     participants = present_meeting.get_participants()
@@ -93,7 +91,7 @@ def join_room(request):
                         present_meeting.onprogress = True
                         present_meeting.add_participant(request.user.id)
                         present_meeting.save()
-                        return render(request, 'videocall.html', {'name': request.user.first_name + " [" + request.user.email.split('@')[0] + "]", 'room_id': room_id, 'is_staff': is_staff,'id':request.user.id})
+                    return render(request, 'videocall.html', {'name': request.user.first_name + " [" + request.user.email.split('@')[0] + "]", 'room_id': room_id, 'is_staff': is_staff,'id':request.user.id,"emaillist":emaillist,'presenter':request.user.first_name})
             else:
                 if not PresentMeeting.objects.filter(room_id=room_id).exists():
                     messages.error(request, "Invalid meeting id, please recheck and enter again.")
@@ -103,11 +101,17 @@ def join_room(request):
                     if request.user.id in participants:
                         messages.error(request, "You've already joined this meeting.")
                     else:
-                        present_meeting.onprogress = True
-                        present_meeting.add_participant(request.user.id)
-                        present_meeting.save()
-                        return render(request, 'videocall.html', {'name': request.user.first_name + " [" + request.user.email.split('@')[0] + "]", 'room_id': room_id, 'is_staff': is_staff,'id':request.user.id})
-        return render(request, 'joinroom.html', {'is_staff': is_staff})
+                        secname=present_meeting.secname
+                        students=sectionDetails.objects.get(secname=secname).students
+                        if secname!='None':
+                            if request.user.username[:10] not in students:
+                                messages.error(request, "You are not allowed to join this meeting.")
+                            else:
+                                present_meeting.onprogress = True
+                                present_meeting.add_participant(request.user.id)
+                                present_meeting.save()
+                                return render(request, 'videocall.html', {'name': request.user.first_name + " [" + request.user.email.split('@')[0] + "]", 'room_id': room_id, 'is_staff': is_staff,'id':request.user.id})
+        return render(request, 'joinroom.html', {'is_staff': is_staff,'sections':sections})
 
 
 def leave_room(request):
@@ -142,6 +146,13 @@ def view_report(request):
         roomID = request.POST['roomID']
         try:
             present_meeting = PresentMeeting.objects.get(room_id=roomID)
+            section=present_meeting.secname
+            students=sectionDetails.objects.get(secname=section).students
+            studentusn=students.split(',')
+            studentname = []
+            for student_name in studentusn:
+                user = User.objects.get(username=student_name+"@nmamit.in")
+                studentname.append(user.first_name)
             intervals = present_meeting.interval
             tot_time = intervals[str(present_meeting.user_id)]
             hours, minutes, seconds = map(int, tot_time.split(':'))
@@ -159,8 +170,10 @@ def view_report(request):
                         'interval': time_str,
                         'percentage': percentage
                     }
-                    entries.append(entry)
-            return render(request, 'report.html', {'entries': entries, 'tot_time': tot_time})
+                    entries.append(entry)            
+            student_dict = {name: usn for name, usn in zip(studentname, studentusn)}
+            formatted_list = [f"{name}  [{usn}]" for name, usn in student_dict.items()]
+            return render(request, 'report.html', {'entries': entries, 'tot_time': tot_time,'studentlist':formatted_list})
         except PresentMeeting.DoesNotExist:
             messages.error(request, "Invalid meeting id, please recheck and enter again.")
         return render(request, 'viewreport.html')
@@ -170,15 +183,13 @@ def create_sec(request):
     if request.method == "POST":
         secname = request.POST.get('secname')
         secstudents = request.POST.get('secstudents')
-        
-        # Create an instance of sectionDetails model
-        section = sectionDetails(user=request.user, secname=secname, students=secstudents)
-        
-        # Save the instance to the database
-        section.save()
-        
-        return render(request, 'createsec.html', {'is_staff': is_staff, 'secname': secname, 'secstudents': secstudents})
+        if sectionDetails.objects.filter(secname=secname.lower()).exists() or sectionDetails.objects.filter(secname=secname.upper()).exists():
+            error_message = "Section already exists."
+            return render(request, 'createsec.html', {'is_staff': is_staff, 'error': error_message})
+        else:
+            section = sectionDetails(user=request.user, secname=secname, students=secstudents)
+            section.save()
+            return render(request, 'createsec.html', {'is_staff': is_staff, 'secname': secname, 'secstudents': secstudents})
     else:
-        # Render the form template for GET requests
         return render(request, 'createsec.html', {'is_staff': is_staff})
 

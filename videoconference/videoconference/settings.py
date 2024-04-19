@@ -84,9 +84,9 @@ WSGI_APPLICATION = 'videoconference.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vdomini',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'minipro',
+        'USER': 'manasa',
+        'PASSWORD': 'Ashwini@1234',
         'HOST': 'localhost',    # Or your MySQL server's IP address
         'PORT': '3306',         # MySQL default port
     }

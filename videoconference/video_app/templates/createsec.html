@@ -6,6 +6,21 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Join Room</title>
   <style>
+
+#usn-list {
+  list-style: none;
+  padding: 0;
+}
+
+.usn-item {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; 
+  margin: 10px 32px;
+  background-color: #f0f0f0; /* Background color for list items */
+  padding: 10px;
+  border-radius: 6px; /* Border radius for list items */
+}
     /* Import Google font - Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
 
@@ -111,29 +126,68 @@
 </head>
 <body>
   <div class="container">
-    <div class="form">
+    <div class="form" style="padding-bottom: 0%;">
       <header style="margin-bottom: 10px;">Add a new section</header>
       <form action="{% url 'create_sec' %}" method="POST" class="join-room-form">
         {% csrf_token %}
         {% if is_staff %}
-        <div class="input-container">
-          <input type="text" placeholder="Enter section name" name="secname">
-          <input type="text" placeholder="Enter student's USN separated by comma" name="secstudents">
-          <input type="submit" value="Add" style="margin-bottom: 0%;">
+        <div class="input-container" style="margin-bottom: 0%;">
+          <input type="text" placeholder="Enter section name" name="secname" pattern="[A-Z]" title="Please enter a single uppercase letter only." maxlength="1" minlength="1" required>
+          <input type="text" id="secstudents" placeholder="Enter student's USN and press enter to store" name="secstudents" maxlength="10" minlength="10">
+          <input type="submit" value="Finalize" style="margin-bottom: 0%;"><br><br>
         </div>
         {% else %}
         {% endif %}
-       
-        <div class="messages">
-          {% if messages %}
-            {% for message in messages %}
-              <p class="{% if 'error' in message.tags %}error-message{% else %}success-message{% endif %}"><b>{{ message }}</b></p>
-            {% endfor %}
-          {% endif %}
-        </div>
+        
+{% if error %}
+    <p style="color: red; text-align: center;">{{ error }}</p>
+{% endif %}
+</div>
+<ul id="usn-list" class="messages"></ul>
+</div>
       </form>
-    </div>
-  </div>
+    
+  <!-- Your scripts -->
+  <script>
+    var usnArray = [];
 
-  </body>
+    function addUSNToList(usn) {
+      var list = document.getElementById('usn-list');
+      var listItem = document.createElement('li');
+      listItem.textContent = usn;
+      listItem.classList.add('usn-item');
+          
+      // Append list item to list
+      list.appendChild(listItem);
+    }
+
+    // Get form and attach submit event listener
+    document.querySelector('.join-room-form').addEventListener('submit', function(event) {
+// Select all list items in the ul element
+var listItems = document.querySelectorAll('#usn-list .usn-item');
+var combinedContent = usnArray.join(',');
+document.querySelector('input[name="secstudents"]').value = combinedContent;
+    });
+
+    // Get input field for USNs
+    var usnInput = document.querySelector('input[name="secstudents"]');
+    usnInput.addEventListener('keydown', function(event) {
+      // Check if Enter key is pressed
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent default form submission behavior
+        
+        var usnValue = this.value.trim(); // Trim any leading/trailing whitespace
+        var usnRegex = /^4nm21[a-zA-Z]{2}\d{3}$/;
+
+        if (usnValue !== ''&&!usnArray.includes(usnValue)&&usnValue.length===10&&usnRegex.test(usnValue)) {
+            addUSNToList(usnValue);
+            usnArray.push(usnValue); 
+          this.value = '';
+        }else{
+          alert('Please enter a valid USN following the format 4nm21XXYYY, where X can only be letters and Y can only be numbers, and the length must be exactly 10 characters.');
+        }
+      }
+    });
+  </script>
+</body>
 </html>

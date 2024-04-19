@@ -12,6 +12,7 @@ class PresentMeeting(models.Model):
     join_times = models.JSONField(default=dict)
     leave_times = models.JSONField(default=dict)
     interval=models.JSONField(default=dict)
+    secname = models.CharField(max_length=100, unique=True)
     def get_participants(self):
         if self.participants:
             return self.participants.split(',')  # Split the string by comma (or any other delimiter you choose)
@@ -62,6 +63,3 @@ class sectionDetails(models.Model):
             return student_usns[participant_id]
         else:
             return None
-
-
-    

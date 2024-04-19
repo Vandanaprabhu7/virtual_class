@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting Report</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -18,7 +21,8 @@
         .charts-container {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 30px;
+            margin-bottom: 0px;
+            margin-top: 0;
         }
         .chart-card {
             background-color: #fff;
@@ -26,7 +30,6 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             width: 45%;
-            height: 500px;
         }
         .chart-card h3 {
             margin-top: 0;
@@ -54,7 +57,7 @@
             background-color: #f9f9f9;
         }
         .progress-bar-container {
-            width: 100%;
+            width: 75%;
             background-color: #ddd;
             border-radius: 5px;
             overflow: hidden;
@@ -69,20 +72,42 @@
             color: white;
             animation: progress-fill 2s ease-out;
         }
+        .button-container {
+        text-align: center;
+        margin-top: 20px; /* Optional: Add margin for space from the top */
+    }
+        .download-button {
+            display: block;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            background-color: #41B06E; /* Same color as the bar graph */
+            color: white; /* Text color */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        margin-right: 10px;
+       
+        }
+
+        .download-button:hover {
+            background-color: #368258; /* Darker shade for hover effect */
+        }
       
     </style>
 </head>
 <body>
-    <div style="margin-top: 50px;" class="charts-container">
+    <div style="margin-top: 0px;" class="charts-container">
         <!-- Bar Graph -->
-        <div class="chart-card" style="height: 500px;">
+        <div class="chart-card">
             <h3 style="text-align: center;">Bar Graph</h3>
-            <canvas id="barGraph" class="chart" style="height: 500px;"></canvas>
+            <canvas id="barGraph" class="chart" style="height: 400px;"></canvas>
         </div>
         <!-- Line Graph -->
         <div class="chart-card">
             <h3 style="text-align: center;">Line Graph</h3>
-            <canvas id="lineGraph" class="chart" style="height: 500px;"></canvas>
+            <canvas id="lineGraph" class="chart" style="height: 400px;"></canvas>
         </div>
     </div>
     <div class="main-content">
@@ -90,12 +115,13 @@
             <h2 style="text-align: center;">Meeting Report</h2>
             <p style="text-align: center;">Total duration of meeting {{tot_time}}</p><br>
             <div class="table-responsive">
-                <table>
+                <table id="meetingTable">
                     <thead>
                         <tr>
                             <th>User</th>
                             <th>Time Interval</th>
-                            <th>Percentage of time attended</th>
+                            <th>Attendance in %</th>
+                            <th>Result</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -109,6 +135,13 @@
                                     <div class="progress-bar" style="width: {{ entry.percentage }}%;"></div>
                                 </div>
                             </td>
+                            <td>
+                                {% if entry.percentage > 65 %}
+                                    <span class="badge badge-success">Present</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Absent</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -116,17 +149,59 @@
             </div>
         </div>
     </div>
-    <button onclick="downloadPDF()">Download PDF</button>
+    <div class="button-container">
+        <button class="download-button" onclick="downloadPDF()">Download as PDF</button>
+        <button class="download-button" onclick="downloadCSV()">Download as CSV</button>
+        <!-- <button class="download-button" onclick="optimizeAttendance()">Mark attendance</button> -->
+    </div>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js/dist/html2pdf.bundle.min.js"></script>
     <script>
+        studentlist=`{{studentlist}}`
+        studentlist = studentlist.replace(/&#x27;/g,'\'');
+        studentlist = studentlist.substring(1, studentlist.length - 1);
         var user_info_list = [{% for entry in entries %}'{{ entry.user_info }}',{% endfor %}];
         var percentage_list = [{% for entry in entries %}{{ entry.percentage }},{% endfor %}];
         var stripped_user_info_list = [];
+        studentlist = studentlist.replace(/'/g, "");
+        let studentArray = studentlist.split(", ");
+        let elementsNotInUserInfo = [];
+for (let i = 0; i < studentArray.length; i++) {
+    if (!user_info_list.includes(studentArray[i])) {
+        elementsNotInUserInfo.push(studentArray[i]);
+    }
+}
 
+for (let i = 0; i < elementsNotInUserInfo.length; i++) {
+        percentage_list.push(0);
+}
+for (let i = 0; i < elementsNotInUserInfo.length; i++) {
+        user_info_list.push(elementsNotInUserInfo[i]);
+}
 for (var i = 0; i < user_info_list.length; i++) {
     var stripped_info = user_info_list[i].slice(0, -13); // Remove last 10 characters
     stripped_user_info_list.push(stripped_info);
 }
+        // Loop through elementsNotInUserInfo
+        elementsNotInUserInfo.forEach(user => {
+            // Append a row to the table with user and percentage 0
+            $('#meetingTable tbody').append(`
+                <tr>
+                    <td>${user}</td>
+                    <td>00:00:00</td>
+                    <td>
+                        <p>0%</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-danger">Absent</span></td>
+                </tr>
+            `);
+        });
+
         // Bar Graph
         var ctx1 = document.getElementById('barGraph').getContext('2d');
         var barGraph = new Chart(ctx1, {
@@ -202,12 +277,46 @@ for (var i = 0; i < user_info_list.length; i++) {
                 }
             }
         });
+        
         function downloadPDF() {
-        const filename = 'meeting_report.pdf';
+    const filename = 'meeting_report.pdf';
 
-        // Convert HTML to PDF
-        html2pdf().from(document.body).save(filename);
-    }
-    </script>
+    // Define PDF generation options
+    const options = {
+        margin: 0, // Adjust top margin as needed
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all'] },
+    };
+
+    // Convert HTML to PDF with options
+    html2pdf().set(options).from(document.querySelector('.main-content')).save();
+}
+function downloadCSV() {
+            var table = document.getElementById("meetingTable");
+            var csv = [];
+            var rows = table.rows;
+            for (var i = 0; i < rows.length; i++) {
+                var row = [];
+                var cols = rows[i].cells;
+                for (var j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                }
+                csv.push(row.join(","));
+            }
+            var csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "meeting_report.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.12.0"></scrip>
+
 </body>
 </html>
