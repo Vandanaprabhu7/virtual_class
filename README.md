@@ -3,4 +3,13 @@ email IDs.
 Students are granted limited access, whereas teachers possess broader privileges, including the ability to create/join meetings, establish sections, add students via their University Seat Number (USN) and so on. Additionally, the system sends meeting invitations to relevant section students via email, ensuring seamless communication. 
 The system automates attendance tracking, marking students present if they attend more than 65% of the class duration. Meeting reports can be downloaded in CSV format featuring attendance or PDF format along with insightful histograms and line graphs. This project aims to optimize online learning experiences by providing a user-friendly platform tailored to the specific needs of NMAMIT students and teachers.
 
-Contributer: **Vaishnavi P Shet** (https://github.com/codingassistance)
+Contributer: **Vaishnavi P Shet**
+
+- **[Vaishnavi P Shet](#vaishnavi-p-shet)**
+  - GitHub: [vaishnavi-shet](https://github.com/vaishnavi-shet)
+  - LinkedIn: [Vaishnavi P Shet](https://www.linkedin.com/in/vaishnavi-p-shet/)
+  - Twitter: [vaishnavi_p_shet](https://twitter.com/vaishnavi_p_shet)
+
+---
+
+## <a name="vaishnavi-p-shet"></a>Vaishnavi P Shet
