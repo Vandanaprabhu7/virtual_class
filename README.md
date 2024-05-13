@@ -6,10 +6,7 @@ The system automates attendance tracking, marking students present if they atten
 Contributer: **Vaishnavi P Shet**
 
 - **[Vaishnavi P Shet](#vaishnavi-p-shet)**
-  - GitHub: [vaishnavi-shet](https://github.com/vaishnavi-shet)
-  - LinkedIn: [Vaishnavi P Shet](https://www.linkedin.com/in/vaishnavi-p-shet/)
-  - Twitter: [vaishnavi_p_shet](https://twitter.com/vaishnavi_p_shet)
-
+  - GitHub: [vaishnavi-shet](https://github.com/codingassistance)
 ---
 
-## <a name="vaishnavi-p-shet"></a>Vaishnavi P Shet
+## <a name="vaishnavi-p-shet">https://github.com/codingassistance</a>
