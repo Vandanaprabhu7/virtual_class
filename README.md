@@ -8,5 +8,3 @@ Contributer: **Vaishnavi P Shet**
 - **[Vaishnavi P Shet](#vaishnavi-p-shet)**
   - GitHub: [vaishnavi-shet](https://github.com/codingassistance)
 ---
-
-## <a name="vaishnavi-p-shet">https://github.com/codingassistance</a>
