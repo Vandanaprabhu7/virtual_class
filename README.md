@@ -5,5 +5,5 @@ Students are granted limited access, whereas teachers possess broader privileges
 The system automates attendance tracking, marking students present if they attend more than 65% of the class duration. Meeting reports can be downloaded in CSV format featuring attendance or PDF format along with insightful histograms and line graphs. This project aims to optimize online learning experiences by providing a user-friendly platform tailored to the specific needs of NMAMIT students and teachers.
 ## Contributors
  [**Vaishnavi P Shet**](https://github.com/codingassistance)
- \n
+ <br></br>
 [**See demo here**](https://drive.google.com/file/d/1GJ78z-qMqO9o0iQZXaz8fg1I2diMLsZ2/view)
